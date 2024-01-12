@@ -5,7 +5,7 @@ from pymongo import MongoClient  # pymongo를 임포트 하기(패키지 인스�
 
 app = Flask(__name__)
 
-client = MongoClient('mongodb+srv://moondy2209:geonu064877~@cluster0.t0cskbu.mongodb.net/?retryWrites=true&w=majority')
+client = MongoClient('mongodb+srv://moondy2209:비밀번호 입력^_^@cluster0.t0cskbu.mongodb.net/?retryWrites=true&w=majority')
 db = client.dbjungle
 
 
