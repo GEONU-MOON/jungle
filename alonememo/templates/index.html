@@ -42,6 +42,21 @@
         font-family: "Stylish", sans-serif;
       }
 
+      .delete-button {
+        padding: 5px 10px;
+        font-size: 14px;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .delete-button:hover {
+        background-color: #ff4848;
+      }
+
       .wrap {
         width: 900px;
         margin: auto;
@@ -126,14 +141,31 @@
 
       function makeCard(image, url, title, desc, comment) {
         let tempHtml = `<div class="card">
-                        <img class="card-img-top" src="${image}" alt="Card image cap">
-                        <div class="card-body">
-                        <a href="${url}" target="_blank" class="card-title">${title}</a>
-                        <p class="card-text">${desc}</p>
-                        <p class="card-text comment">${comment}</p>
-                        </div>
-                    </div>`;
+                            <img class="card-img-top" src="${image}" alt="Card image cap">
+                            <div class="card-body">
+                                <a href="${url}" target="_blank" class="card-title">${title}</a>
+                                <p class="card-text">${desc}</p>
+                                <p class="card-text comment">${comment}</p>
+                                <button onclick="deleteArticleByField('${url}')" class="delete-button">삭제</button>
+                            </div>
+                        </div>`;
         $("#cards-box").append(tempHtml);
+      }
+
+      function deleteArticleByField(url) {
+        $.ajax({
+          type: "POST",
+          url: "/delete_memo_by_field",
+          data: { url_give: url },
+          success: function (response) {
+            if (response["result"] == "success") {
+              alert("삭제 완료!");
+              showArticles(); // 목록 새로고침
+            } else {
+              alert("오류 발생");
+            }
+          },
+        });
       }
     </script>
   </head>

@@ -5,7 +5,7 @@ from pymongo import MongoClient  # pymongo를 임포트 하기(패키지 인스�
 
 app = Flask(__name__)
 
-client = MongoClient('mongodb+srv://moondy2209:비밀번호 입력^_^@cluster0.t0cskbu.mongodb.net/?retryWrites=true&w=majority')
+client = MongoClient('mongodb+srv://moondy2209:A3ykBYjy9iGaeUF4@cluster0.t0cskbu.mongodb.net/?retryWrites=true&w=majority')
 db = client.dbjungle
 
 
@@ -49,6 +49,17 @@ def read_articles():
     result = list(db.articles.find({}, {'_id': 0}))
     # 2. articles라는 키 값으로 article 정보 보내주기
     return jsonify({'result': 'success', 'articles': result})
+
+@app.route('/delete_memo_by_field', methods=['POST'])
+def delete_article_by_field():
+    # 클라이언트로부터 필드 값 받기 (예: url)
+    url_receive = request.form['url_give']
+
+    # 해당 url 값을 가진 데이터를 찾아 삭제
+    db.articles.delete_one({'url': url_receive})
+
+    return jsonify({'result': 'success'})
+
 
 
 if __name__ == '__main__':
