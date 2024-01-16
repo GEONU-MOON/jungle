@@ -8,11 +8,9 @@ app = Flask(__name__)
 client = MongoClient('mongodb+srv://moondy2209:A3ykBYjy9iGaeUF4@cluster0.t0cskbu.mongodb.net/?retryWrites=true&w=majority')
 db = client.dbjungle
 
-
 @app.route('/')
 def home():
     return render_template('index.html')
-
 
 @app.route('/memo', methods=['POST'])
 def post_article():
@@ -42,7 +40,6 @@ def post_article():
 
     return jsonify({'result': 'success'})
 
-
 @app.route('/memo', methods=['GET'])
 def read_articles():
     # 1. mongoDB에서 _id 값을 제외한 모든 데이터 조회해오기 (Read)
@@ -60,7 +57,33 @@ def delete_article_by_field():
 
     return jsonify({'result': 'success'})
 
+@app.route('/update_memo', methods=['POST'])
+def update_article():
+    original_url_receive = request.form['original_url_give']
+    new_url_receive = request.form['url_give']
+    comment_receive = request.form['comment_give']
 
+    # 새 URL에 대한 메타데이터 스크래핑
+    headers = {'User-Agent': '...'}
+    data = requests.get(new_url_receive, headers=headers)
+    soup = BeautifulSoup(data.text, 'html.parser')
+
+    # 새로운 메타데이터 추출
+    new_og_image = soup.select_one('meta[property="og:image"]')['content']
+    new_og_title = soup.select_one('meta[property="og:title"]')['content']
+    new_og_description = soup.select_one('meta[property="og:description"]')['content']
+
+    # 데이터베이스 업데이트
+    db.articles.update_one({'url': original_url_receive}, 
+                           {'$set': {
+                               'url': new_url_receive, 
+                               'comment': comment_receive,
+                               'title': new_og_title,
+                               'desc': new_og_description,
+                               'image': new_og_image
+                           }})
+
+    return jsonify({'result': 'success'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

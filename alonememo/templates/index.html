@@ -7,7 +7,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -15,7 +14,10 @@
       integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
       crossorigin="anonymous"
     />
-
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
     <!-- JS -->
     <script
       src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
@@ -27,14 +29,13 @@
       integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
       crossorigin="anonymous"
     ></script>
-
     <!-- 구글폰트 -->
     <link
       href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
       rel="stylesheet"
     />
 
-    <title>SW사관학교 정글 | 나홀로 메모장</title>
+    <title>기사 스크래핑 | 나홀로 메모장</title>
 
     <!-- style -->
     <style type="text/css">
@@ -74,6 +75,23 @@
         border: black solid;
         border-radius: 5px;
       }
+
+      .edit-button,
+      .save-button {
+        padding: 5px 10px;
+        font-size: 14px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .edit-button:hover,
+      .save-button:hover {
+        background-color: #45a049;
+      }
     </style>
     <script>
       $(document).ready(function () {
@@ -99,19 +117,55 @@
         let url = $("#post-url").val();
         let comment = $("#post-comment").val();
 
-        // 2. memo에 POST 방식으로 메모 생성 요청하기
         $.ajax({
-          type: "POST", // POST 방식으로 요청하겠다.
-          url: "/memo", // /memo라는 url에 요청하겠다.
-          data: { url_give: url, comment_give: comment }, // 데이터를 주는 방법
+          type: "POST",
+          url: "/memo",
+          data: { url_give: url, comment_give: comment },
           success: function (response) {
-            // 성공하면
             if (response["result"] == "success") {
               alert("포스팅 성공!");
-              // 3. 성공 시 리스트 새로고침하기
               showArticles();
+              $("#post-box").hide(); // 포스팅 박스 닫기
+              $("#post-url").val(""); // URL 입력 필드 비우기
+              $("#post-comment").val(""); // 코멘트 입력 필드 비우기
+              $("#btn-post-box").text("포스팅 박스 열기"); // 버튼 텍스트 변경
             } else {
               alert("서버 오류!");
+            }
+          },
+        });
+      }
+
+      function editArticle(url, element) {
+        let cardBody = $(element).closest(".card-body");
+        let currentUrl = cardBody.find(".card-title").attr("href");
+        let currentComment = cardBody.find(".comment").text();
+
+        let editHtml = `
+            <input class="form-control" id="edit-url" value="${currentUrl}">
+            <textarea class="form-control" id="edit-comment">${currentComment}</textarea>
+            <button onclick="saveEditedArticle('${url}', this)" class="save-button">저장</button>`;
+
+        cardBody.html(editHtml);
+      }
+
+      function saveEditedArticle(originalUrl, element) {
+        let newUrl = $("#edit-url").val();
+        let newComment = $("#edit-comment").val();
+        let cardBody = $(element).closest(".card-body");
+
+        $.ajax({
+          type: "POST",
+          url: "/update_memo",
+          data: {
+            original_url_give: originalUrl,
+            url_give: newUrl,
+            comment_give: newComment,
+          },
+          success: function (response) {
+            if (response["result"] == "success") {
+              alert("수정 완료!");
+              showArticles();
             }
           },
         });
@@ -147,6 +201,7 @@
                                 <p class="card-text">${desc}</p>
                                 <p class="card-text comment">${comment}</p>
                                 <button onclick="deleteArticleByField('${url}')" class="delete-button">삭제</button>
+                                <button onclick="editArticle('${url}', this)" class="edit-button">수정하기</button>
                             </div>
                         </div>`;
         $("#cards-box").append(tempHtml);
@@ -160,7 +215,7 @@
           success: function (response) {
             if (response["result"] == "success") {
               alert("삭제 완료!");
-              showArticles(); // 목록 새로고침
+              showArticles();
             } else {
               alert("오류 발생");
             }
