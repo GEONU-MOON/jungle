@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
+    <!-- 기본 메타 태그 설정 -->
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS 연결 -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
@@ -16,7 +16,19 @@
       crossorigin="anonymous"
     />
 
-    <!-- JS -->
+    <!-- Google Fonts 연결 -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 사용자 정의 CSS 연결 -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+
+    <!-- JQuery와 Popper.js 연결 -->
     <script
       src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
       integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
@@ -28,93 +40,18 @@
       crossorigin="anonymous"
     ></script>
 
-    <title>나홀로 메모장 ver2.0</title>
-
-    <!-- style -->
-    <style type="text/css">
-      #input-title {
-        width: 500px;
-      }
-      #input-text {
-        width: 500px;
-      }
-      .card-link {
-        color: white;
-      }
-    </style>
-    <script>
-      $(document).ready(function () {
-        //문서 초기화 코드
-        showMemo();
-      });
-
-      function postMemo() {
-        // 1. 유저가 입력한 데이터를 #input-title과 #input-text에서 가져오기
-        let title = $("#input-title").val();
-        let text = $("#input-text").val();
-
-        // 2. memo에 POST 방식으로 메모 생성 요청하기
-        $.ajax({
-          type: "POST", // POST 방식으로 요청하겠다.
-          url: "/memo", // /memo라는 url에 요청하겠다.
-          data: { title_give: title, text_give: text }, // 데이터를 주는 방법
-          success: function (response) {
-            // 성공하면
-            if (response["result"] == "success") {
-              alert("포스팅 성공!");
-              // 3. 성공 시 리스트 새로고침하기
-              showMemo();
-              $("#input-title").val(""); // 제목 입력 필드 비우기
-              $("#input-text").val(""); // 내용 입력 필드 비우기
-            } else {
-              alert("서버 오류!");
-            }
-          },
-        });
-      }
-
-      function showMemo() {
-        $("#card-list").html("");
-        $.ajax({
-          type: "GET",
-          url: "/memo",
-          data: {},
-          success: function (response) {
-            let memos = response["memos"];
-            for (let i = 0; i < memos.length; i++) {
-              makeMemo(memos[i]["title"], memos[i]["text"]);
-            }
-          },
-        });
-      }
-
-      function makeMemo(title, text) {
-        let temp_html = `<div class="card" style="width: 300px;">
-                            <div class="card-body">
-                            <h5 class="card-title">${title}</h5>
-                            <h6 class="card-text">${text}</h6> 
-                            <span class="badge badge-info">                       
-                            <a href="#" class="card-link">수정</a>
-                            </span>
-                            <span class="badge badge-danger">
-                            <a href="#" class="card-link">삭제</a>
-                            </span>
-                            </div>
-                        </div>`;
-        $("#card-list").append(temp_html);
-      }
-    </script>
+    <title>우리의 메모장 ver2.0</title>
   </head>
-
   <body>
     <div class="wrap">
+      <!-- 제목 부분 -->
       <div class="jumbotron">
         <h1 class="display-4">
-          나홀로메모장 <span class="badge badge-secondary">ver2.0</span>
+          우리의 메모장 <span class="badge badge-secondary">ver2.0</span>
         </h1>
         <div>
+          <!-- 입력 필드 -->
           <div class="form-group">
-            <label for="input-title"></label>
             <input
               id="input-title"
               class="form-control"
@@ -122,22 +59,25 @@
             />
           </div>
           <div class="form-group">
-            <label for="input-text"></label>
             <textarea
               id="input-text"
               class="form-control"
               placeholder="내용을 입력하세요"
-              rows="2"
+              rows="4"
             ></textarea>
           </div>
+          <!-- 저장 버튼 -->
+          <button onclick="postMemo()" type="submit" class="btn btn-primary">
+            저장하기
+          </button>
         </div>
-        <button onclick="postMemo()" type="submit" class="btn btn-primary">
-          저장하기
-        </button>
       </div>
-      <div id="card-list" class="card-columns">
-        <!-- 메모 카드들이 추가될 부분 -->
-      </div>
+
+      <!-- 메모 카드 리스트 -->
+      <div id="card-list" class="row"></div>
     </div>
+
+    <!-- 사용자 정의 JavaScript 연결 -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   </body>
 </html>
